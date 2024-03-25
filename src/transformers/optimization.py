@@ -179,10 +179,13 @@ def _get_cosine_with_hard_restarts_schedule_with_warmup_lr_lambda(
 ):
     if current_step < num_warmup_steps:
         return float(current_step) / float(max(1, num_warmup_steps))
-    progress = float(current_step - num_warmup_steps) / float(max(1, num_training_steps - num_warmup_steps))
-    if progress >= 1.0:
+    if current_step >= num_training_steps:
         return 0.0
-    return max(0.0, 0.5 * (1.0 + math.cos(math.pi * ((float(num_cycles) * progress) % 1.0))))
+    if num_cycles < 1:
+        num_cycles = 1
+    cycle_length = int(math.ceil((num_training_steps - num_warmup_steps) / num_cycles))
+    subprogress = float((current_step - num_warmup_steps) % cycle_length) / float(max(1, cycle_length))
+    return max(0.0, 0.5 * (1.0 + math.cos(math.pi * subprogress)))
 
 
 def get_cosine_with_hard_restarts_schedule_with_warmup(
