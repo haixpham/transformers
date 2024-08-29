@@ -365,6 +365,9 @@ class TrainingArguments:
         dataloader_num_workers (`int`, *optional*, defaults to 0):
             Number of subprocesses to use for data loading (PyTorch only). 0 means that the data will be loaded in the
             main process.
+        dataloader_prefetch_factor (`int`, *optional*):
+            Number of batches loaded in advance by each worker.
+            2 means there will be a total of 2 * num_workers batches prefetched across all workers.
         past_index (`int`, *optional*, defaults to -1):
             Some models like [TransformerXL](../model_doc/transformerxl) or [XLNet](../model_doc/xlnet) can make use of
             the past hidden states for their predictions. If this argument is set to a positive int, the `Trainer` will
@@ -986,6 +989,17 @@ class TrainingArguments:
             "help": (
                 "Number of subprocesses to use for data loading (PyTorch only). 0 means that the data will be loaded"
                 " in the main process."
+            )
+        },
+    )
+
+    dataloader_prefetch_factor: Optional[int] = field(
+        default=None if not is_torch_available() else 2,
+        metadata={
+            "help": (
+                "Number of batches loaded in advance by each worker. "
+                "2 means there will be a total of 2 * num_workers batches prefetched across all workers. "
+                "Default is 2 for PyTorch < 2.0.0 and otherwise None."
             )
         },
     )
